@@ -1,0 +1,32 @@
+services:
+  calculatrice:
+    image: node:20-alpine
+    container_name: calculatrice-prod
+    working_dir: /app
+    volumes:
+      - .:/app
+      - node_modules:/app/node_modules
+    ports:
+      - "3014:3000"
+    environment:
+      - NODE_ENV=production
+      - NEXT_TELEMETRY_DISABLED=1
+      - HOSTNAME=0.0.0.0
+    command: >
+      sh -c "
+        NODE_ENV=development npm ci &&
+        NODE_ENV=production npm run build &&
+        cp -r public .next/standalone/public &&
+        cp -r .next/static .next/standalone/.next/static &&
+        NODE_ENV=production node .next/standalone/server.js
+      "
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 120s
+
+volumes:
+  node_modules:

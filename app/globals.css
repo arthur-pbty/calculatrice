@@ -1,0 +1,332 @@
+@import "tailwindcss";
+
+/* ══════════════════════════════════════════════
+   Variables de thème – Calculatrice en ligne
+   ══════════════════════════════════════════════ */
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-surface: var(--surface);
+  --color-surface-hover: var(--surface-hover);
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-muted: var(--muted);
+  --color-border: var(--border-color);
+  --font-sans: var(--font-inter);
+  --font-mono: var(--font-mono);
+}
+
+:root {
+  --background: #f0f2f5;
+  --foreground: #1a1a2e;
+  --surface: #ffffff;
+  --surface-hover: #f8f9fa;
+  --primary: #4f46e5;
+  --primary-hover: #4338ca;
+  --accent: #f97316;
+  --accent-hover: #ea580c;
+  --muted: #6b7280;
+  --border-color: #e5e7eb;
+  --display-bg: #f8fafc;
+  --btn-num-bg: #ffffff;
+  --btn-num-hover: #f1f5f9;
+  --btn-op-bg: #eef2ff;
+  --btn-op-hover: #e0e7ff;
+  --btn-sci-bg: #fdf4ff;
+  --btn-sci-hover: #fae8ff;
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 8px 30px rgba(0, 0, 0, 0.12);
+}
+
+.dark {
+  --background: #0f0f1a;
+  --foreground: #e2e8f0;
+  --surface: #1e1e2e;
+  --surface-hover: #2a2a3e;
+  --primary: #818cf8;
+  --primary-hover: #6366f1;
+  --accent: #fb923c;
+  --accent-hover: #f97316;
+  --muted: #94a3b8;
+  --border-color: #334155;
+  --display-bg: #161625;
+  --btn-num-bg: #252538;
+  --btn-num-hover: #2d2d45;
+  --btn-op-bg: #1e1e3a;
+  --btn-op-hover: #2a2a50;
+  --btn-sci-bg: #2a1e2e;
+  --btn-sci-hover: #3a2a40;
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 8px 30px rgba(0, 0, 0, 0.5);
+}
+
+/* ══════════════════════════════════════════════
+   Base
+   ══════════════════════════════════════════════ */
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* ══════════════════════════════════════════════
+   Animations
+   ══════════════════════════════════════════════ */
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideDown {
+  from { opacity: 0; max-height: 0; }
+  to { opacity: 1; max-height: 500px; }
+}
+
+@keyframes press {
+  0% { transform: scale(1); }
+  50% { transform: scale(0.93); }
+  100% { transform: scale(1); }
+}
+
+@keyframes ripple {
+  to { transform: scale(4); opacity: 0; }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out;
+}
+
+.animate-slide-down {
+  animation: slideDown 0.3s ease-out;
+}
+
+.animate-press {
+  animation: press 0.15s ease-out;
+}
+
+/* ══════════════════════════════════════════════
+   Boutons de la calculatrice
+   ══════════════════════════════════════════════ */
+
+.calc-btn {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  border: 1px solid transparent;
+}
+
+.calc-btn:active {
+  animation: press 0.15s ease-out;
+}
+
+.calc-btn-num {
+  background: var(--btn-num-bg);
+  color: var(--foreground);
+  box-shadow: var(--shadow-sm);
+}
+.calc-btn-num:hover {
+  background: var(--btn-num-hover);
+  box-shadow: var(--shadow-md);
+}
+
+.calc-btn-op {
+  background: var(--btn-op-bg);
+  color: var(--primary);
+  font-weight: 600;
+  box-shadow: var(--shadow-sm);
+}
+.calc-btn-op:hover {
+  background: var(--btn-op-hover);
+  box-shadow: var(--shadow-md);
+}
+
+.calc-btn-sci {
+  background: var(--btn-sci-bg);
+  color: #a855f7;
+  font-size: 0.85rem;
+  box-shadow: var(--shadow-sm);
+}
+.dark .calc-btn-sci {
+  color: #c084fc;
+}
+.calc-btn-sci:hover {
+  background: var(--btn-sci-hover);
+  box-shadow: var(--shadow-md);
+}
+
+.calc-btn-equal {
+  background: var(--primary);
+  color: white;
+  font-weight: 700;
+  font-size: 1.3rem;
+  box-shadow: var(--shadow-md);
+}
+.calc-btn-equal:hover {
+  background: var(--primary-hover);
+  box-shadow: var(--shadow-lg);
+}
+
+.calc-btn-clear {
+  background: #fee2e2;
+  color: #dc2626;
+  font-weight: 600;
+  box-shadow: var(--shadow-sm);
+}
+.dark .calc-btn-clear {
+  background: #2d1b1b;
+  color: #f87171;
+}
+.calc-btn-clear:hover {
+  background: #fecaca;
+  box-shadow: var(--shadow-md);
+}
+.dark .calc-btn-clear:hover {
+  background: #3d2525;
+}
+
+/* ══════════════════════════════════════════════
+   Affichage de la calculatrice
+   ══════════════════════════════════════════════ */
+
+.calc-display {
+  background: var(--display-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease;
+}
+
+.dark .calc-display {
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* ══════════════════════════════════════════════
+   Panneau historique
+   ══════════════════════════════════════════════ */
+
+.history-item {
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.history-item:hover {
+  background: var(--surface-hover);
+}
+
+/* ══════════════════════════════════════════════
+   Scrollbar personnalisée
+   ══════════════════════════════════════════════ */
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--muted);
+  border-radius: 4px;
+}
+
+/* ══════════════════════════════════════════════
+   Toggle switch thème
+   ══════════════════════════════════════════════ */
+
+.theme-toggle {
+  position: relative;
+  width: 52px;
+  height: 28px;
+  border-radius: 14px;
+  background: #e2e8f0;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+.dark .theme-toggle {
+  background: #475569;
+}
+.theme-toggle::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: white;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  transition: transform 0.3s ease;
+}
+.dark .theme-toggle::after {
+  transform: translateX(24px);
+}
+
+/* ══════════════════════════════════════════════
+   Mode toggle (Simple / Scientifique)
+   ══════════════════════════════════════════════ */
+
+.mode-toggle {
+  position: relative;
+  display: flex;
+  background: var(--surface);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.mode-toggle button {
+  position: relative;
+  z-index: 1;
+  padding: 6px 16px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--muted);
+  transition: color 0.3s ease;
+  cursor: pointer;
+  background: transparent;
+  border: none;
+}
+
+.mode-toggle button.active {
+  color: white;
+}
+
+.mode-slider {
+  position: absolute;
+  top: 2px;
+  bottom: 2px;
+  border-radius: 8px;
+  background: var(--primary);
+  transition: left 0.3s ease, width 0.3s ease;
+}
+
+/* ══════════════════════════════════════════════
+   Responsive
+   ══════════════════════════════════════════════ */
+
+@media (max-width: 480px) {
+  .calc-btn {
+    border-radius: 10px;
+    font-size: 0.95rem;
+  }
+  .calc-btn-sci {
+    font-size: 0.75rem;
+  }
+}
