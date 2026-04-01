@@ -285,6 +285,7 @@ body {
 .mode-toggle {
   position: relative;
   display: flex;
+  min-width: 210px;
   background: var(--surface);
   border: 1px solid var(--border-color);
   border-radius: 10px;
@@ -292,9 +293,11 @@ body {
 }
 
 .mode-toggle button {
+  flex: 1;
   position: relative;
   z-index: 1;
   padding: 6px 16px;
+  text-align: center;
   font-size: 0.85rem;
   font-weight: 500;
   color: var(--muted);
@@ -311,10 +314,12 @@ body {
 .mode-slider {
   position: absolute;
   top: 2px;
+  left: 2px;
   bottom: 2px;
+  width: calc(50% - 2px);
   border-radius: 8px;
   background: var(--primary);
-  transition: left 0.3s ease, width 0.3s ease;
+  transition: transform 0.3s ease;
 }
 
 /* ══════════════════════════════════════════════

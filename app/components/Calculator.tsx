@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState, useEffect, useCallback, useRef } from "react";
 
 /* ══════════════════════════════════════════════
@@ -151,39 +152,37 @@ export default function Calculator() {
   const [error, setError] = useState(""); // Message d'erreur
   const [steps, setSteps] = useState<string[]>([]); // Étapes de calcul
   const [showSteps, setShowSteps] = useState(false); // Afficher les étapes
-  const [history, setHistory] = useState<HistoryEntry[]>([]); // Historique
+  const [history, setHistory] = useState<HistoryEntry[]>(() => {
+    if (typeof window === "undefined") return [];
+    try {
+      const savedHistory = localStorage.getItem(HISTORY_KEY);
+      return savedHistory ? JSON.parse(savedHistory) : [];
+    } catch {
+      return [];
+    }
+  }); // Historique
   const [showHistory, setShowHistory] = useState(false); // Panneau historique visible
   const [isScientific, setIsScientific] = useState(false); // Mode scientifique
-  const [isDark, setIsDark] = useState(false); // Thème sombre
+  const [isDark, setIsDark] = useState(() => {
+    if (typeof window === "undefined") return false;
+    try {
+      const savedTheme = localStorage.getItem(THEME_KEY);
+      if (savedTheme === "dark") return true;
+      if (savedTheme === "light") return false;
+      return window.matchMedia("(prefers-color-scheme: dark)").matches;
+    } catch {
+      return false;
+    }
+  }); // Thème sombre
   const [copied, setCopied] = useState(false); // Feedback copie
   const [lastKey, setLastKey] = useState(""); // Dernière touche pressée (feedback visuel)
 
   const displayRef = useRef<HTMLDivElement>(null);
-  const simpleRef = useRef<HTMLButtonElement>(null);
-  const sciRef = useRef<HTMLButtonElement>(null);
 
-  // ── Chargement initial depuis localStorage ──
+  // ── Synchroniser la classe de thème avec l'état courant ──
   useEffect(() => {
-    try {
-      const savedHistory = localStorage.getItem(HISTORY_KEY);
-      if (savedHistory) setHistory(JSON.parse(savedHistory));
-
-      const savedTheme = localStorage.getItem(THEME_KEY);
-      if (savedTheme === "dark") {
-        setIsDark(true);
-        document.documentElement.classList.add("dark");
-      } else if (savedTheme === "light") {
-        setIsDark(false);
-        document.documentElement.classList.remove("dark");
-      } else {
-        // Détecter la préférence système
-        const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-        setIsDark(prefersDark);
-      }
-    } catch {
-      // localStorage non disponible
-    }
-  }, []);
+    document.documentElement.classList.toggle("dark", isDark);
+  }, [isDark]);
 
   // ── Sauvegarder l'historique dans localStorage ──
   useEffect(() => {
@@ -430,7 +429,7 @@ export default function Calculator() {
      ════════════════════════════════════════════ */
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-4 sm:p-8 transition-colors duration-300">
+    <div className="min-h-screen flex flex-col items-center p-4 sm:p-8 transition-colors duration-300">
       {/* Lien d'accessibilité : aller au contenu principal */}
       <a
         href="#calculatrice"
@@ -463,23 +462,16 @@ export default function Calculator() {
             <div
               className="mode-slider"
               style={{
-                left: isScientific
-                  ? (simpleRef.current?.offsetWidth ?? 80) + 2 + "px"
-                  : "2px",
-                width: isScientific
-                  ? (sciRef.current?.offsetWidth ?? 100) + "px"
-                  : (simpleRef.current?.offsetWidth ?? 80) + "px",
+                transform: isScientific ? "translateX(100%)" : "translateX(0)",
               }}
             />
             <button
-              ref={simpleRef}
               className={!isScientific ? "active" : ""}
               onClick={() => setIsScientific(false)}
             >
               Simple
             </button>
             <button
-              ref={sciRef}
               className={isScientific ? "active" : ""}
               onClick={() => setIsScientific(true)}
             >
@@ -747,102 +739,145 @@ export default function Calculator() {
         </div>
       )}
 
-      {/* ── Footer SEO avec contenu sémantique ── */}
-      <footer className="mt-12 w-full max-w-2xl animate-fade-in" style={{ animationDelay: "0.3s" }}>
-        {/* Contenu textuel riche pour le SEO */}
-        <article className="mb-8 px-4">
-          <h2 className="text-xl font-bold mb-3" style={{ color: "var(--foreground)" }}>
-            Calculatrice en ligne gratuite
-          </h2>
-          <p className="text-sm leading-relaxed mb-4" style={{ color: "var(--muted)" }}>
-            Notre calculatrice en ligne gratuite vous permet d&apos;effectuer tous vos calculs
-            directement dans votre navigateur, sans installation ni inscription. Que vous ayez
-            besoin d&apos;une simple addition ou d&apos;un calcul scientifique complexe avec des
-            fonctions trigonométriques, notre outil s&apos;adapte à vos besoins.
-          </p>
+      {/* ── Contenu SEO ── */}
+      <section className="mt-10 w-full max-w-3xl space-y-5" aria-labelledby="seo-content-heading">
+        <h2 id="seo-content-heading" className="text-xl font-bold" style={{ color: "var(--foreground)" }}>
+          Calculatrice en ligne simple et scientifique
+        </h2>
+        <p className="text-sm leading-relaxed" style={{ color: "var(--muted)" }}>
+          Cette calculatrice en ligne gratuite permet de faire vos opérations du quotidien et vos calculs plus avances,
+          directement depuis votre navigateur. Aucun compte, aucune installation et une interface rapide sur mobile comme
+          sur ordinateur.
+        </p>
+        <p className="text-sm leading-relaxed" style={{ color: "var(--muted)" }}>
+          Le mode simple couvre addition, soustraction, multiplication et division. Le mode scientifique ajoute sin, cos,
+          tan, logarithmes, racine carree, puissances, factorielle et constantes pi / e. L&apos;historique est conserve
+          localement pour retrouver vos derniers calculs.
+        </p>
 
-          <h2 className="text-lg font-semibold mb-2" style={{ color: "var(--foreground)" }}>
-            Mode simple : les opérations essentielles
-          </h2>
-          <p className="text-sm leading-relaxed mb-4" style={{ color: "var(--muted)" }}>
-            Le mode simple couvre les quatre opérations fondamentales : addition (+),
-            soustraction (−), multiplication (×) et division (÷). Vous pouvez utiliser
-            des parenthèses pour structurer vos expressions et obtenir des résultats
-            précis. La gestion des erreurs vous avertit automatiquement en cas de
-            division par zéro.
-          </p>
-
-          <h2 className="text-lg font-semibold mb-2" style={{ color: "var(--foreground)" }}>
-            Mode scientifique : des fonctions avancées
-          </h2>
-          <p className="text-sm leading-relaxed mb-4" style={{ color: "var(--muted)" }}>
-            Basculez en mode scientifique pour accéder aux fonctions trigonométriques
-            (sinus, cosinus, tangente), aux logarithmes (log décimal, logarithme naturel),
-            à la racine carrée, aux puissances, à la factorielle, ainsi qu&apos;aux
-            constantes mathématiques π et e. Idéal pour les étudiants, ingénieurs et
-            professionnels.
-          </p>
-        </article>
-
-        {/* Section FAQ pour le SEO */}
-        <section className="mb-8 px-4" aria-labelledby="faq-heading">
-          <h2 id="faq-heading" className="text-lg font-semibold mb-3" style={{ color: "var(--foreground)" }}>
-            Questions fréquentes
-          </h2>
-          <div className="space-y-3">
+        <div className="rounded-xl border p-4" style={{ borderColor: "var(--border-color)", background: "var(--surface)" }}>
+          <h3 className="text-base font-semibold" style={{ color: "var(--foreground)" }}>
+            Questions frequentes
+          </h3>
+          <div className="mt-3 space-y-2 text-sm" style={{ color: "var(--muted)" }}>
             {[
               {
-                q: "Comment utiliser la calculatrice en ligne ?",
-                a: "Cliquez sur les boutons ou utilisez votre clavier pour saisir une expression mathématique, puis appuyez sur « = » ou Entrée pour obtenir le résultat.",
+                q: "Comment faire un calcul rapidement ?",
+                a: "Saisissez votre expression puis appuyez sur Entree ou sur le bouton =.",
               },
               {
-                q: "Quelles fonctions scientifiques sont disponibles ?",
-                a: "Sinus, cosinus, tangente, logarithme décimal, logarithme naturel, racine carrée, puissances, factorielle, et les constantes π et e.",
+                q: "Puis-je utiliser le clavier ?",
+                a: "Oui. Les chiffres et operateurs sont pris en charge. Entree calcule, Echap efface et Retour arriere supprime le dernier caractere.",
               },
               {
-                q: "L'historique des calculs est-il sauvegardé ?",
-                a: "Oui, vos 50 derniers calculs sont sauvegardés automatiquement dans votre navigateur et persistent même après fermeture de la page.",
+                q: "A quoi sert le mode scientifique ?",
+                a: "Il ajoute les fonctions avancees: sin, cos, tan, log, ln, racine carree, puissances et factorielle.",
               },
               {
-                q: "La calculatrice est-elle vraiment gratuite ?",
-                a: "Oui, 100 % gratuite, sans publicité et sans inscription. Utilisez-la autant que vous le souhaitez.",
+                q: "Est-ce que l'historique est conserve ?",
+                a: "Oui, les 50 derniers calculs sont stockes localement dans votre navigateur.",
               },
               {
-                q: "Puis-je utiliser des raccourcis clavier ?",
-                a: "Oui ! Chiffres et opérateurs au clavier, Entrée pour calculer, Échap pour effacer, Retour arrière pour supprimer, Ctrl+C pour copier.",
+                q: "Puis-je reutiliser un ancien calcul ?",
+                a: "Oui, ouvrez l'historique puis cliquez sur une ligne pour recharger l'expression et le resultat.",
               },
-            ].map((faq, i) => (
+              {
+                q: "La calculatrice fonctionne-t-elle sur mobile ?",
+                a: "Oui, l'interface est adaptee aux ecrans mobiles et ordinateurs.",
+              },
+              {
+                q: "Dois-je creer un compte ?",
+                a: "Non, aucun compte n'est necessaire pour utiliser la calculatrice.",
+              },
+              {
+                q: "Comment contacter le proprietaire du site ?",
+                a: "Via contact.arthurp.fr ou par email a contact@arthurp.fr.",
+              },
+            ].map((item, i) => (
               <details
                 key={i}
-                className="rounded-lg overflow-hidden transition-all"
-                style={{
-                  background: "var(--surface)",
-                  border: "1px solid var(--border-color)",
-                }}
+                className="rounded-lg border px-3 py-2"
+                style={{ borderColor: "var(--border-color)", background: "var(--background)" }}
               >
-                <summary
-                  className="px-4 py-3 cursor-pointer text-sm font-medium select-none hover:bg-[var(--surface-hover)] transition-colors"
-                  style={{ color: "var(--foreground)" }}
-                >
-                  {faq.q}
+                <summary className="cursor-pointer font-medium" style={{ color: "var(--foreground)" }}>
+                  {item.q}
                 </summary>
-                <p
-                  className="px-4 pb-3 text-sm leading-relaxed"
-                  style={{ color: "var(--muted)" }}
-                >
-                  {faq.a}
-                </p>
+                <p className="mt-2 leading-relaxed">{item.a}</p>
               </details>
             ))}
           </div>
-        </section>
+        </div>
+      </section>
 
-        {/* Copyright */}
-        <div className="text-center text-xs pb-4" style={{ color: "var(--muted)" }}>
-          <p>© {new Date().getFullYear()} Calculatrice en ligne gratuite — Simple &amp; Scientifique</p>
-          <p className="mt-1 opacity-60">
-            Outil de calcul en ligne rapide, gratuit et sans inscription.
-          </p>
+      {/* ── Footer normal en bas de page ── */}
+      <footer className="mt-auto w-full px-3 pt-10 pb-3">
+        <div
+          className="mx-auto w-full max-w-5xl rounded-2xl border p-4 sm:p-6 backdrop-blur-xl"
+          style={{
+            background: "color-mix(in srgb, var(--surface) 88%, transparent)",
+            borderColor: "var(--border-color)",
+            boxShadow: "var(--shadow-lg)",
+          }}
+        >
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            <section>
+              <h2 className="text-sm font-semibold tracking-wide uppercase" style={{ color: "var(--foreground)" }}>
+                Navigation
+              </h2>
+              <nav className="mt-3 flex flex-col gap-2 text-sm" aria-label="Navigation du site">
+                <Link href="/" className="hover:underline" style={{ color: "var(--muted)" }}>Accueil</Link>
+                <a href="https://arthurp.fr/projets" target="_blank" rel="noreferrer" className="hover:underline" style={{ color: "var(--muted)" }}>Projets</a>
+                <a href="https://contact.arthurp.fr" target="_blank" rel="noreferrer" className="hover:underline" style={{ color: "var(--muted)" }}>Contact</a>
+              </nav>
+            </section>
+
+            <section>
+              <h2 className="text-sm font-semibold tracking-wide uppercase" style={{ color: "var(--foreground)" }}>
+                Liens
+              </h2>
+              <div className="mt-3 flex flex-col gap-2 text-sm">
+                <a href="https://arthurp.fr" target="_blank" rel="noreferrer" className="hover:underline" style={{ color: "var(--muted)" }}>
+                  arthurp.fr
+                </a>
+                <a href="https://github.com/arthur-pbty" target="_blank" rel="noreferrer" className="hover:underline" style={{ color: "var(--muted)" }}>
+                  GitHub
+                </a>
+              </div>
+            </section>
+
+            <section>
+              <h2 className="text-sm font-semibold tracking-wide uppercase" style={{ color: "var(--foreground)" }}>
+                Légal
+              </h2>
+              <div className="mt-3 flex flex-col gap-2 text-sm">
+                <Link href="/mentions-legales" className="hover:underline" style={{ color: "var(--muted)" }}>
+                  Mentions légales
+                </Link>
+                <Link href="/politique-de-confidentialite" className="hover:underline" style={{ color: "var(--muted)" }}>
+                  Politique de confidentialité
+                </Link>
+              </div>
+            </section>
+
+            <section>
+              <h2 className="text-sm font-semibold tracking-wide uppercase" style={{ color: "var(--foreground)" }}>
+                Contact
+              </h2>
+              <div className="mt-3 flex flex-col gap-2 text-sm" style={{ color: "var(--muted)" }}>
+                <a href="https://contact.arthurp.fr" target="_blank" rel="noreferrer" className="hover:underline">
+                  contact.arthurp.fr
+                </a>
+                <a href="mailto:contact@arthurp.fr" className="hover:underline">
+                  contact@arthurp.fr
+                </a>
+                <p className="text-xs opacity-80">Fait avec ❤️ et auto-hébergé sur Proxmox.</p>
+              </div>
+            </section>
+          </div>
+
+          <div className="mt-6 border-t pt-3 text-center text-xs" style={{ color: "var(--muted)", borderColor: "var(--border-color)" }}>
+            © {new Date().getFullYear()} Arthur P. Tous droits réservés.
+          </div>
         </div>
       </footer>
     </div>

@@ -1,33 +1,32 @@
 # Calculatrice
 
-Application web de calculatrice réalisée avec Next.js.
+Calculatrice web (simple + scientifique) construite avec Next.js.
 
-## Site en ligne
+## Liens
 
-- Projet: https://calculatrice.arthurp.fr
+- Site: https://calculatrice.arthurp.fr
+- Site principal: https://arthurp.fr
+- Contact: https://contact.arthurp.fr
+- Email: contact@arthurp.fr
 
-## Objectif
-
-Proposer une calculatrice simple, rapide et responsive, utilisable sur desktop et mobile.
-
-## Stack technique
+## Stack
 
 - Next.js 16
 - React 19
 - TypeScript
 
-## Lancement en local
+## Developpement local
 
-Prerequis: Node.js 20+
+Prerequis: Node.js 22+
 
 ```bash
-npm install
+npm ci
 npm run dev
 ```
 
-Application accessible sur http://localhost:3000
+Application: http://localhost:3000
 
-## Scripts utiles
+## Scripts
 
 ```bash
 npm run dev
@@ -36,21 +35,24 @@ npm run start
 npm run lint
 ```
 
-## Deploiement
+## Docker
 
-Build de production:
+Mode dev:
 
 ```bash
-npm run build
+docker compose --profile dev up --build
 ```
 
-Ensuite deployer sur votre plateforme cible (Vercel, VPS, etc.).
+Mode production:
 
-## Backlinks
+```bash
+docker compose --profile prod up --build -d
+```
 
-- Calculatrice en ligne: https://calculatrice.arthurp.fr
-- Site principal: https://arthurp.fr
+- Dev: http://localhost:3000
+- Prod: http://localhost:3014
 
-## Licence
+## Pages legales
 
-Projet personnel.
+- /mentions-legales
+- /politique-de-confidentialite

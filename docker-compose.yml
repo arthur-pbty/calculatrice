@@ -1,11 +1,31 @@
 services:
-  web:
-    build: .
+  calculatrice-dev:
+    profiles: ["dev"]
+    build:
+      context: .
+      target: calculatrice-dev
+    container_name: calculatrice-dev
     ports:
       - "3000:3000"
     volumes:
-      - ./:/app
+      - .:/app
       - /app/node_modules
+      - /app/.next
     environment:
-      - NODE_ENV=development
-    command: npm run dev
+      NEXT_TELEMETRY_DISABLED: "1"
+      NODE_ENV: development
+
+  calculatrice-prod:
+    profiles: ["prod"]
+    build:
+      context: .
+      target: calculatrice-runner
+    container_name: calculatrice-prod
+    restart: unless-stopped
+    ports:
+      - "3014:3000"
+    env_file:
+      - .env
+    environment:
+      NEXT_TELEMETRY_DISABLED: "1"
+      NODE_ENV: production
